@@ -1,0 +1,10 @@
+node_modules
+.next
+out
+build
+package-lock.json
+
+# docs e config do Claude Code mantidos com a formatação original
+docs/
+CLAUDE.md
+.claude/
