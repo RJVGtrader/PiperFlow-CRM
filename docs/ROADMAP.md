@@ -18,7 +18,7 @@ Cada milestone: branch dedicada a partir de `main`, merge via PR ao final, commi
 - [x] shadcn/ui inicializado (tema base)
 - [x] Estrutura de pastas (`app/`, `components/`, `lib/`, `types/`, `docs/`)
 - [x] ESLint + Prettier configurados
-- [ ] Projeto Supabase criado e linkado (env vars locais) — CLI local inicializado e `.env.example` prontos; falta rodar `supabase login` / `supabase link` (login interativo, feito manualmente)
+- [x] Projeto Supabase criado e linkado (env vars locais)
 - [ ] Projeto Vercel criado e linkado — falta rodar `vercel login` / `vercel link` (login interativo, feito manualmente)
 - [x] README com instruções de setup local
 
