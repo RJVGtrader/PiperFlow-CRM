@@ -19,7 +19,7 @@ Cada milestone: branch dedicada a partir de `main`, merge via PR ao final, commi
 - [x] Estrutura de pastas (`app/`, `components/`, `lib/`, `types/`, `docs/`)
 - [x] ESLint + Prettier configurados
 - [x] Projeto Supabase criado e linkado (env vars locais)
-- [ ] Projeto Vercel criado e linkado — falta rodar `vercel login` / `vercel link` (login interativo, feito manualmente)
+- [x] Projeto Vercel criado e linkado
 - [x] README com instruções de setup local
 
 **Commit final:** `chore: setup inicial do projeto Next.js + Tailwind + shadcn/ui`
