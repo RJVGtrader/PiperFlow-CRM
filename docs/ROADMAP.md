@@ -33,11 +33,11 @@ Cada milestone: branch dedicada a partir de `main`, merge via PR ao final, commi
 **Objetivo:** Construir a landing page pública, 100% estática.
 
 **Entregas:**
-- [ ] Seção Hero
-- [ ] Seção de Funcionalidades
-- [ ] Seção de Planos e Preços (Free / Pro — estática)
-- [ ] Seção de CTA final + footer
-- [ ] Responsivo (mobile / desktop)
+- [x] Seção Hero
+- [x] Seção de Funcionalidades
+- [x] Seção de Planos e Preços (Free / Pro — estática)
+- [x] Seção de CTA final + footer
+- [x] Responsivo (mobile / desktop)
 
 **Commit final:** `feat: landing page pública`
 
