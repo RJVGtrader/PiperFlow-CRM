@@ -13,14 +13,14 @@ Cada milestone: branch dedicada a partir de `main`, merge via PR ao final, commi
 **Objetivo:** Inicializar o projeto com a stack definida e a estrutura de pastas do CLAUDE.md, sem nenhuma feature ainda.
 
 **Entregas:**
-- [ ] Projeto Next.js 14 (App Router) + TypeScript 5 (strict)
-- [ ] Tailwind CSS configurado
-- [ ] shadcn/ui inicializado (tema base)
-- [ ] Estrutura de pastas (`app/`, `components/`, `lib/`, `types/`, `docs/`)
-- [ ] ESLint + Prettier configurados
-- [ ] Projeto Supabase criado e linkado (env vars locais)
-- [ ] Projeto Vercel criado e linkado
-- [ ] README com instruções de setup local
+- [x] Projeto Next.js 14 (App Router) + TypeScript 5 (strict)
+- [x] Tailwind CSS configurado
+- [x] shadcn/ui inicializado (tema base)
+- [x] Estrutura de pastas (`app/`, `components/`, `lib/`, `types/`, `docs/`)
+- [x] ESLint + Prettier configurados
+- [ ] Projeto Supabase criado e linkado (env vars locais) — CLI local inicializado e `.env.example` prontos; falta rodar `supabase login` / `supabase link` (login interativo, feito manualmente)
+- [ ] Projeto Vercel criado e linkado — falta rodar `vercel login` / `vercel link` (login interativo, feito manualmente)
+- [x] README com instruções de setup local
 
 **Commit final:** `chore: setup inicial do projeto Next.js + Tailwind + shadcn/ui`
 
