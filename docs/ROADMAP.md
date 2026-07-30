@@ -50,10 +50,10 @@ Cada milestone: branch dedicada a partir de `main`, merge via PR ao final, commi
 **Objetivo:** Telas de login, cadastro e onboarding, sem lógica de autenticação real (formulários funcionais visualmente, submit mockado).
 
 **Entregas:**
-- [ ] Tela de login
-- [ ] Tela de cadastro (signup)
-- [ ] Fluxo de onboarding: criação do primeiro workspace
-- [ ] Estados de erro/validação de formulário (UI)
+- [x] Tela de login
+- [x] Tela de cadastro (signup)
+- [x] Fluxo de onboarding: criação do primeiro workspace
+- [x] Estados de erro/validação de formulário (UI)
 
 **Commit final:** `feat: UI de autenticação e onboarding`
 
