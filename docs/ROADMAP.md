@@ -82,10 +82,10 @@ Cada milestone: branch dedicada a partir de `main`, merge via PR ao final, commi
 **Objetivo:** Telas de leads com dados mockados.
 
 **Entregas:**
-- [ ] Tabela de leads com busca e filtros (status, responsável, data)
-- [ ] Formulário de criação/edição de lead (nome, e-mail, telefone, empresa, cargo, status)
-- [ ] Página de detalhe do lead
-- [ ] Timeline de atividades na página de detalhe (UI, mock)
+- [x] Tabela de leads com busca e filtros (status, responsável, data)
+- [x] Formulário de criação/edição de lead (nome, e-mail, telefone, empresa, cargo, status)
+- [x] Página de detalhe do lead
+- [x] Timeline de atividades na página de detalhe (UI, mock)
 
 **Commit final:** `feat: UI de gestão de leads e contatos`
 
