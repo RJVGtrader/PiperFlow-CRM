@@ -14,15 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { mockCurrentUser } from "@/lib/mock-data";
-
-function getInitials(name: string) {
-  return name
-    .split(" ")
-    .map((part) => part[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
-}
+import { getInitials } from "@/lib/utils";
 
 export function UserMenu({ onNavigate }: { onNavigate?: () => void }) {
   const router = useRouter();
