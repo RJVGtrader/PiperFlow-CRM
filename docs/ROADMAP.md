@@ -66,10 +66,10 @@ Cada milestone: branch dedicada a partir de `main`, merge via PR ao final, commi
 **Objetivo:** Layout da área autenticada com dados mockados: sidebar, navegação e troca de workspace.
 
 **Entregas:**
-- [ ] Layout `(dashboard)` com sidebar e topbar
-- [ ] Dropdown de troca de workspace (mock)
-- [ ] Navegação entre Leads / Pipeline / Dashboard / Settings
-- [ ] Estados vazios e loading skeletons padrão
+- [x] Layout `(dashboard)` com sidebar e topbar
+- [x] Dropdown de troca de workspace (mock)
+- [x] Navegação entre Leads / Pipeline / Dashboard / Settings
+- [x] Estados vazios e loading skeletons padrão
 
 **Commit final:** `feat: shell do dashboard autenticado`
 
