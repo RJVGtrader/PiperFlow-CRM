@@ -98,10 +98,10 @@ Cada milestone: branch dedicada a partir de `main`, merge via PR ao final, commi
 **Objetivo:** Board Kanban funcional em memória, com drag-and-drop via @dnd-kit, sem persistência.
 
 **Entregas:**
-- [ ] Colunas por etapa (Novo Lead → Contato Realizado → Proposta Enviada → Negociação → Fechado Ganho / Fechado Perdido)
-- [ ] Cards de negócio (título, valor estimado, lead vinculado, responsável, prazo)
-- [ ] Drag-and-drop entre colunas (estado local)
-- [ ] Formulário de criação/edição de negócio
+- [x] Colunas por etapa (Novo Lead → Contato Realizado → Proposta Enviada → Negociação → Fechado Ganho / Fechado Perdido)
+- [x] Cards de negócio (título, valor estimado, lead vinculado, responsável, prazo)
+- [x] Drag-and-drop entre colunas (estado local)
+- [x] Formulário de criação/edição de negócio
 
 **Commit final:** `feat: UI do pipeline Kanban com drag-and-drop`
 
