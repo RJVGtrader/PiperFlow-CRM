@@ -1,7 +1,7 @@
 const columns = [
   {
     title: "Novo Lead",
-    dot: "bg-slate-400",
+    dot: "bg-[#3B82F6]",
     cards: [
       { title: "Consultoria Almeida", value: "R$ 4.200" },
       { title: "Studio Rocha", value: "R$ 1.800" },
@@ -9,12 +9,12 @@ const columns = [
   },
   {
     title: "Proposta Enviada",
-    dot: "bg-amber-400",
+    dot: "bg-[#F59E0B]",
     cards: [{ title: "Grupo Vitória", value: "R$ 12.500" }],
   },
   {
     title: "Fechado Ganho",
-    dot: "bg-emerald-500",
+    dot: "bg-[#22C55E]",
     cards: [{ title: "Nortec Distribuidora", value: "R$ 8.900" }],
     highlight: true,
   },
@@ -46,7 +46,7 @@ export function PipelinePreview() {
                     key={card.title}
                     className={`rounded-md border p-2.5 text-left shadow-sm ${
                       column.highlight
-                        ? "border-emerald-200 bg-emerald-50 dark:border-emerald-900 dark:bg-emerald-950/40"
+                        ? "border-[#22C55E]/40 bg-[#22C55E]/10"
                         : "border-border bg-background"
                     }`}
                   >
