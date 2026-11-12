@@ -13,6 +13,14 @@ export function formatDate(isoDate: string) {
   }).format(new Date(`${isoDate}T00:00:00`));
 }
 
+/** Dias corridos de hoje até a data (negativo = já passou). */
+export function getDaysUntil(isoDate: string) {
+  const target = new Date(`${isoDate}T00:00:00`);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return Math.round((target.getTime() - today.getTime()) / 86_400_000);
+}
+
 export function formatCurrency(value: number) {
   return new Intl.NumberFormat("pt-BR", {
     style: "currency",

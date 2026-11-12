@@ -7,17 +7,14 @@ import { Building2, Clock } from "lucide-react";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { dealStageConfig } from "@/components/kanban/deal-stage";
-import { cn, formatCurrency, formatDate, getInitials } from "@/lib/utils";
+import { cn, formatCurrency, formatDate, getDaysUntil, getInitials } from "@/lib/utils";
 import type { Deal } from "@/types/deal";
 
 function getDueStatus(dueDate: string, stage: Deal["stage"]) {
   const isOpenStage = stage !== "fechado_ganho" && stage !== "fechado_perdido";
   if (!isOpenStage) return "neutral" as const;
 
-  const due = new Date(`${dueDate}T00:00:00`);
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const diffDays = Math.round((due.getTime() - today.getTime()) / 86_400_000);
+  const diffDays = getDaysUntil(dueDate);
 
   if (diffDays < 0) return "overdue" as const;
   if (diffDays <= 3) return "soon" as const;

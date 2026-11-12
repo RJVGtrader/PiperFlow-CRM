@@ -2,12 +2,12 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CheckCircle2, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { PasswordInput } from "@/components/auth/password-input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -30,41 +30,19 @@ const loginSchema = z.object({
 type LoginValues = z.infer<typeof loginSchema>;
 
 export function LoginForm() {
-  const [status, setStatus] = React.useState<"idle" | "loading" | "success">("idle");
+  const router = useRouter();
+  const [status, setStatus] = React.useState<"idle" | "loading">("idle");
 
   const form = useForm<LoginValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: { email: "", password: "", remember: false },
   });
 
+  // Login simulado: a autenticação real via Supabase Auth entra no M9.
   async function onSubmit() {
     setStatus("loading");
     await new Promise((resolve) => setTimeout(resolve, 900));
-    setStatus("success");
-  }
-
-  if (status === "success") {
-    return (
-      <Alert className="border-brand/30 bg-brand/5 [&>svg]:text-brand">
-        <CheckCircle2 className="size-4" />
-        <AlertTitle>Login simulado com sucesso</AlertTitle>
-        <AlertDescription>
-          A autenticação real via Supabase Auth entra no M9. Por enquanto esta tela só valida a
-          interface.
-        </AlertDescription>
-        <Button
-          type="button"
-          variant="link"
-          className="mt-2 h-auto p-0 text-brand"
-          onClick={() => {
-            form.reset();
-            setStatus("idle");
-          }}
-        >
-          Voltar ao formulário
-        </Button>
-      </Alert>
-    );
+    router.push("/dashboard");
   }
 
   return (
@@ -77,7 +55,12 @@ export function LoginForm() {
             <FormItem>
               <FormLabel>E-mail</FormLabel>
               <FormControl>
-                <Input type="email" placeholder="voce@empresa.com" autoComplete="email" {...field} />
+                <Input
+                  type="email"
+                  placeholder="voce@empresa.com"
+                  autoComplete="email"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
