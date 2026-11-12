@@ -2,6 +2,8 @@ import type { DealStage } from "@/types/deal";
 
 interface StageConfig {
   label: string;
+  /** Cor base da etapa em hex, para libs que não usam classes Tailwind (Recharts). */
+  color: string;
   /** Barra superior + bolinha de identificação da etapa. */
   accent: string;
   /** Fundo sutil da coluna em repouso. */
@@ -26,6 +28,7 @@ export const dealStages: DealStage[] = [
 export const dealStageConfig: Record<DealStage, StageConfig> = {
   novo_lead: {
     label: "Novo Lead",
+    color: "#3B82F6",
     accent: "bg-[#3B82F6]",
     columnBg: "bg-[#3B82F6]/[0.06]",
     dropBg: "bg-[#3B82F6]/[0.14]",
@@ -34,6 +37,7 @@ export const dealStageConfig: Record<DealStage, StageConfig> = {
   },
   contato_realizado: {
     label: "Contato Realizado",
+    color: "#06B6D4",
     accent: "bg-[#06B6D4]",
     columnBg: "bg-[#06B6D4]/[0.06]",
     dropBg: "bg-[#06B6D4]/[0.14]",
@@ -42,6 +46,7 @@ export const dealStageConfig: Record<DealStage, StageConfig> = {
   },
   proposta_enviada: {
     label: "Proposta Enviada",
+    color: "#F59E0B",
     accent: "bg-[#F59E0B]",
     columnBg: "bg-[#F59E0B]/[0.06]",
     dropBg: "bg-[#F59E0B]/[0.14]",
@@ -50,6 +55,7 @@ export const dealStageConfig: Record<DealStage, StageConfig> = {
   },
   negociacao: {
     label: "Negociação",
+    color: "#F97316",
     accent: "bg-[#F97316]",
     columnBg: "bg-[#F97316]/[0.06]",
     dropBg: "bg-[#F97316]/[0.14]",
@@ -58,6 +64,7 @@ export const dealStageConfig: Record<DealStage, StageConfig> = {
   },
   fechado_ganho: {
     label: "Fechado Ganho",
+    color: "#22C55E",
     // Etapa positiva: destaque visual maior que as demais (CLAUDE.md).
     accent: "bg-[#22C55E]",
     columnBg: "bg-[#22C55E]/[0.10]",
@@ -67,6 +74,7 @@ export const dealStageConfig: Record<DealStage, StageConfig> = {
   },
   fechado_perdido: {
     label: "Fechado Perdido",
+    color: "#EF4444",
     // Etapa neutra/negativa: mais dessaturada, sem competir com "Fechado Ganho".
     accent: "bg-[#EF4444]/70",
     columnBg: "bg-[#EF4444]/[0.04]",

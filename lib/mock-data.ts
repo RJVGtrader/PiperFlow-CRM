@@ -3,6 +3,18 @@ import type { Deal } from "@/types/deal";
 import type { Lead } from "@/types/lead";
 import type { Workspace } from "@/types/workspace";
 
+/**
+ * Prazos dos negócios mock relativos à data atual, para que "atrasado", "hoje" e
+ * "próximos dias" continuem realistas até os dados reais chegarem (M12).
+ */
+function daysFromNow(days: number) {
+  const date = new Date();
+  date.setDate(date.getDate() + days);
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${date.getFullYear()}-${month}-${day}`;
+}
+
 export const mockWorkspaces: Workspace[] = [
   { id: "ws_acme", name: "Acme Vendas", plan: "pro" },
   { id: "ws_nova", name: "Agência Nova", plan: "free" },
@@ -181,7 +193,7 @@ export const mockDeals: Deal[] = [
     stage: "novo_lead",
     leadId: "lead_01",
     ownerName: "Ana Souza",
-    dueDate: "2026-08-08",
+    dueDate: daysFromNow(5),
   },
   {
     id: "deal_02",
@@ -190,7 +202,7 @@ export const mockDeals: Deal[] = [
     stage: "novo_lead",
     leadId: "lead_02",
     ownerName: "Carlos Mendes",
-    dueDate: "2026-08-14",
+    dueDate: daysFromNow(12),
   },
   {
     id: "deal_03",
@@ -199,7 +211,7 @@ export const mockDeals: Deal[] = [
     stage: "novo_lead",
     leadId: "lead_12",
     ownerName: "Bruna Ferreira",
-    dueDate: "2026-08-02",
+    dueDate: daysFromNow(6),
   },
   {
     id: "deal_04",
@@ -208,7 +220,7 @@ export const mockDeals: Deal[] = [
     stage: "contato_realizado",
     leadId: "lead_03",
     ownerName: "Bruna Ferreira",
-    dueDate: "2026-08-05",
+    dueDate: daysFromNow(15),
   },
   {
     id: "deal_05",
@@ -217,7 +229,7 @@ export const mockDeals: Deal[] = [
     stage: "contato_realizado",
     leadId: "lead_06",
     ownerName: "Bruna Ferreira",
-    dueDate: "2026-07-27",
+    dueDate: daysFromNow(-1),
   },
   {
     id: "deal_06",
@@ -226,7 +238,7 @@ export const mockDeals: Deal[] = [
     stage: "contato_realizado",
     leadId: "lead_08",
     ownerName: "Carlos Mendes",
-    dueDate: "2026-08-10",
+    dueDate: daysFromNow(20),
   },
   {
     id: "deal_07",
@@ -235,7 +247,7 @@ export const mockDeals: Deal[] = [
     stage: "proposta_enviada",
     leadId: "lead_05",
     ownerName: "Carlos Mendes",
-    dueDate: "2026-08-01",
+    dueDate: daysFromNow(3),
   },
   {
     id: "deal_08",
@@ -244,7 +256,7 @@ export const mockDeals: Deal[] = [
     stage: "proposta_enviada",
     leadId: "lead_09",
     ownerName: "Bruna Ferreira",
-    dueDate: "2026-07-25",
+    dueDate: daysFromNow(4),
   },
   {
     id: "deal_09",
@@ -253,7 +265,7 @@ export const mockDeals: Deal[] = [
     stage: "negociacao",
     leadId: "lead_07",
     ownerName: "Ana Souza",
-    dueDate: "2026-08-03",
+    dueDate: daysFromNow(-2),
   },
   {
     id: "deal_10",
@@ -262,7 +274,7 @@ export const mockDeals: Deal[] = [
     stage: "negociacao",
     leadId: "lead_10",
     ownerName: "Ana Souza",
-    dueDate: "2026-07-31",
+    dueDate: daysFromNow(0),
   },
   {
     id: "deal_11",
@@ -271,7 +283,7 @@ export const mockDeals: Deal[] = [
     stage: "fechado_ganho",
     leadId: "lead_01",
     ownerName: "Ana Souza",
-    dueDate: "2026-07-15",
+    dueDate: daysFromNow(-12),
   },
   {
     id: "deal_12",
@@ -280,7 +292,7 @@ export const mockDeals: Deal[] = [
     stage: "fechado_ganho",
     leadId: "lead_05",
     ownerName: "Carlos Mendes",
-    dueDate: "2026-07-08",
+    dueDate: daysFromNow(-25),
   },
   {
     id: "deal_13",
@@ -289,7 +301,7 @@ export const mockDeals: Deal[] = [
     stage: "fechado_perdido",
     leadId: "lead_11",
     ownerName: "Carlos Mendes",
-    dueDate: "2026-06-28",
+    dueDate: daysFromNow(-30),
   },
   {
     id: "deal_14",
@@ -298,7 +310,7 @@ export const mockDeals: Deal[] = [
     stage: "fechado_perdido",
     leadId: "lead_04",
     ownerName: "Ana Souza",
-    dueDate: "2026-06-20",
+    dueDate: daysFromNow(-38),
   },
   {
     id: "deal_15",
@@ -307,7 +319,7 @@ export const mockDeals: Deal[] = [
     stage: "proposta_enviada",
     leadId: "lead_13",
     ownerName: "Bruna Ferreira",
-    dueDate: "2026-08-07",
+    dueDate: daysFromNow(8),
   },
   {
     id: "deal_16",
@@ -316,7 +328,7 @@ export const mockDeals: Deal[] = [
     stage: "negociacao",
     leadId: "lead_14",
     ownerName: "Ana Souza",
-    dueDate: "2026-08-02",
+    dueDate: daysFromNow(2),
   },
   {
     id: "deal_17",
@@ -325,7 +337,7 @@ export const mockDeals: Deal[] = [
     stage: "fechado_ganho",
     leadId: "lead_03",
     ownerName: "Bruna Ferreira",
-    dueDate: "2026-07-10",
+    dueDate: daysFromNow(-18),
   },
   {
     id: "deal_18",
@@ -334,7 +346,25 @@ export const mockDeals: Deal[] = [
     stage: "fechado_perdido",
     leadId: "lead_09",
     ownerName: "Bruna Ferreira",
-    dueDate: "2026-07-05",
+    dueDate: daysFromNow(-21),
+  },
+  {
+    id: "deal_19",
+    title: "Treinamento de equipe — Almeida Advocacia",
+    value: 8900,
+    stage: "proposta_enviada",
+    leadId: "lead_02",
+    ownerName: "Ana Souza",
+    dueDate: daysFromNow(9),
+  },
+  {
+    id: "deal_20",
+    title: "Plano Pro semestral — Oliveira Logística",
+    value: 11200,
+    stage: "contato_realizado",
+    leadId: "lead_06",
+    ownerName: "Ana Souza",
+    dueDate: daysFromNow(1),
   },
 ];
 

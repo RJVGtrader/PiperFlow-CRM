@@ -5,7 +5,6 @@ import Link from "next/link";
 import { Building2, CheckCircle2, Loader2, Plus, Users, X } from "lucide-react";
 import { z } from "zod";
 
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -99,7 +98,9 @@ export function OnboardingFlow() {
               <span
                 className={cn(
                   "flex size-6 items-center justify-center rounded-full text-xs font-medium",
-                  isActive ? "bg-brand text-brand-foreground" : "bg-secondary text-secondary-foreground"
+                  isActive
+                    ? "bg-brand text-brand-foreground"
+                    : "bg-secondary text-secondary-foreground"
                 )}
               >
                 {index + 1}
@@ -237,19 +238,14 @@ export function OnboardingFlow() {
               </p>
             </div>
 
-            <Alert>
-              <AlertTitle>Próximo passo</AlertTitle>
-              <AlertDescription>
-                O shell do dashboard chega no M3. Por enquanto, esta etapa só valida a UI de
-                onboarding.
-              </AlertDescription>
-            </Alert>
-
             <div className="flex flex-col gap-2">
-              <Button type="button" variant="brand" className="w-full" disabled>
-                Ir para o dashboard
+              <Button asChild variant="brand" className="w-full">
+                <Link href="/dashboard">Ir para o dashboard</Link>
               </Button>
-              <Link href="/" className="text-sm font-medium text-muted-foreground hover:text-foreground">
+              <Link
+                href="/"
+                className="text-sm font-medium text-muted-foreground hover:text-foreground"
+              >
                 Voltar para o início
               </Link>
             </div>
