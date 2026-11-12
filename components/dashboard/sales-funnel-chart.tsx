@@ -78,7 +78,7 @@ export function SalesFunnelChart({ stages, lostDeals }: SalesFunnelChartProps) {
             <LabelList
               dataKey="reached"
               position="center"
-              className="fill-[#0C0C0E] font-mono text-sm font-semibold"
+              className="pointer-events-none fill-[#0C0C0E] font-mono text-sm font-semibold"
               stroke="none"
             />
           </Funnel>
