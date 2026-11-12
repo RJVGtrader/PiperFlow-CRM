@@ -114,9 +114,9 @@ Cada milestone: branch dedicada a partir de `main`, merge via PR ao final, commi
 **Objetivo:** Cards de métricas e gráfico de funil com dados mockados.
 
 **Entregas:**
-- [ ] Cards: total de leads, negócios abertos, valor total do pipeline, taxa de conversão
-- [ ] Gráfico de funil de vendas (Recharts, dados mock)
-- [ ] Lista de negócios do usuário logado com prazo próximo
+- [x] Cards: total de leads, negócios abertos, valor total do pipeline, taxa de conversão
+- [x] Gráfico de funil de vendas (Recharts, dados mock)
+- [x] Lista de negócios do usuário logado com prazo próximo
 
 **Commit final:** `feat: UI do dashboard de métricas`
 
