@@ -144,10 +144,10 @@ Cada milestone: branch dedicada a partir de `main`, merge via PR ao final, commi
 **Objetivo:** Modelar o banco multi-tenant com isolamento por Row Level Security. Fim da fase de UI, início da fase de backend.
 
 **Entregas:**
-- [ ] Migrations: `workspaces`, `workspace_members`, `leads`, `deals`, `activities`, `subscriptions`
-- [ ] Policies RLS por `workspace_id` e `role` (admin/membro)
-- [ ] Geração de tipos TypeScript (`supabase gen types`)
-- [ ] Seed de dados de teste
+- [x] Migrations: `workspaces`, `workspace_members`, `leads`, `deals`, `activities`, `subscriptions`
+- [x] Policies RLS por `workspace_id` e `role` (admin/membro)
+- [x] Geração de tipos TypeScript (`supabase gen types`)
+- [x] Seed de dados de teste
 
 **Commit final:** `feat: schema do banco e RLS multi-tenant`
 
