@@ -54,6 +54,32 @@ npx supabase link --project-ref <seu-project-ref>
 
 Depois, pegue `Project URL`, `anon key` e `service_role key` em **Project Settings > API** no dashboard do Supabase e preencha `.env.local` (ou as env vars do projeto na Vercel, para produção).
 
+### Banco de dados: migrations, seed e tipos
+
+O projeto Supabase linkado (`Pipeflow CRM`) é o ambiente de **dev/staging**. Produção será um projeto separado (M15), que recebe só as migrations, **nunca o seed**.
+
+- Schema e policies RLS: `supabase/migrations/`
+- Dados de teste: `supabase/seed.sql`
+
+```bash
+npx supabase@2 db push --linked                  # aplica migrations novas
+npx supabase@2 db push --linked --include-seed   # + seed (somente dev/staging!)
+npm run db:types                                 # regera os tipos TypeScript
+npm run test:rls                                 # testa o isolamento entre workspaces
+```
+
+Se o CLI falhar com `Failed to create login role`, defina `SUPABASE_DB_PASSWORD` no `.env.local` (Project Settings > Database) e passe `--password "$SUPABASE_DB_PASSWORD"`.
+
+Usuários de teste do seed (senha `pipeflow123` para todos):
+
+| E-mail                     | Acesso                                              |
+| -------------------------- | --------------------------------------------------- |
+| `ana@acmevendas.com`       | Admin da Acme Vendas (Pro) e da Agência Nova (Free) |
+| `bruna@acmevendas.com`     | Admin da Acme Vendas                                |
+| `carlos@acmevendas.com`    | Membro da Acme Vendas                               |
+| `rafael@acmevendas.com`    | Membro da Acme Vendas                               |
+| `pedro@agencianova.com.br` | Membro da Agência Nova                              |
+
 ### Conectando à Vercel
 
 ```bash
@@ -73,6 +99,8 @@ Depois configure as mesmas variáveis de `.env.example` em **Project Settings > 
 | `npm run lint`         | ESLint                                   |
 | `npm run format`       | Formata o código com Prettier            |
 | `npm run format:check` | Verifica formatação sem alterar arquivos |
+| `npm run db:types`     | Regera `lib/supabase/database.types.ts`  |
+| `npm run test:rls`     | Testa o isolamento RLS no banco de dev   |
 
 ## Componentes shadcn/ui
 

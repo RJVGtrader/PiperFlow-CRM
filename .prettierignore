@@ -8,3 +8,6 @@ package-lock.json
 docs/
 CLAUDE.md
 .claude/
+
+# arquivo gerado por `npm run db:types`
+lib/supabase/database.types.ts

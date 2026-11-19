@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "next lint",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "db:types": "npx supabase@2 gen types typescript --linked --schema public > lib/supabase/database.types.ts",
+    "test:rls": "node --env-file=.env.local scripts/test-rls.mjs"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

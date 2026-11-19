@@ -1,4 +1,6 @@
-export type ActivityType = "ligacao" | "email" | "reuniao" | "nota";
+import type { Enums } from "@/lib/supabase/database.types";
+
+export type ActivityType = Enums<"activity_type">;
 
 export interface Activity {
   id: string;
