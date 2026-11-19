@@ -1,7 +1,7 @@
 import type { Activity } from "@/types/activity";
 import type { Deal } from "@/types/deal";
 import type { Lead } from "@/types/lead";
-import type { Workspace } from "@/types/workspace";
+import type { Subscription, Workspace, WorkspaceInvite, WorkspaceMember } from "@/types/workspace";
 
 /**
  * Prazos dos negócios mock relativos à data atual, para que "atrasado", "hoje" e
@@ -25,6 +25,72 @@ export const mockCurrentUser = {
   email: "ana@acmevendas.com",
   role: "admin" as const,
 };
+
+export const mockMembers: WorkspaceMember[] = [
+  {
+    id: "mem_01",
+    workspaceId: "ws_acme",
+    name: "Ana Souza",
+    email: "ana@acmevendas.com",
+    role: "admin",
+    joinedAt: "2026-03-02",
+  },
+  {
+    id: "mem_02",
+    workspaceId: "ws_acme",
+    name: "Carlos Mendes",
+    email: "carlos@acmevendas.com",
+    role: "membro",
+    joinedAt: "2026-03-10",
+  },
+  {
+    id: "mem_03",
+    workspaceId: "ws_acme",
+    name: "Bruna Ferreira",
+    email: "bruna@acmevendas.com",
+    role: "admin",
+    joinedAt: "2026-04-18",
+  },
+  {
+    id: "mem_04",
+    workspaceId: "ws_acme",
+    name: "Rafael Duarte",
+    email: "rafael@acmevendas.com",
+    role: "membro",
+    joinedAt: "2026-09-05",
+  },
+  {
+    id: "mem_05",
+    workspaceId: "ws_nova",
+    name: "Ana Souza",
+    email: "ana@acmevendas.com",
+    role: "admin",
+    joinedAt: "2026-06-21",
+  },
+  {
+    id: "mem_06",
+    workspaceId: "ws_nova",
+    name: "Pedro Lima",
+    email: "pedro@agencianova.com.br",
+    role: "membro",
+    joinedAt: "2026-07-03",
+  },
+];
+
+export const mockInvites: WorkspaceInvite[] = [
+  {
+    id: "inv_01",
+    workspaceId: "ws_acme",
+    email: "juliana@acmevendas.com",
+    role: "membro",
+    sentAt: daysFromNow(-2),
+  },
+];
+
+export const mockSubscriptions: Subscription[] = [
+  { workspaceId: "ws_acme", plan: "pro", status: "active", currentPeriodEnd: daysFromNow(23) },
+  { workspaceId: "ws_nova", plan: "free", status: "active", currentPeriodEnd: null },
+];
 
 export const mockOwners = ["Ana Souza", "Carlos Mendes", "Bruna Ferreira"];
 

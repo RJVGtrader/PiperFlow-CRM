@@ -11,35 +11,17 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { plans as planDefinitions } from "@/lib/plans";
 
 const plans = [
   {
-    name: "Free",
-    price: "R$ 0",
-    period: "/mês",
-    description: "Para começar a organizar suas vendas sem custo.",
-    features: [
-      "Até 2 colaboradores",
-      "Até 50 leads",
-      "Pipeline Kanban completo",
-      "Timeline de atividades",
-    ],
+    ...planDefinitions.free,
     cta: "Começar grátis",
     variant: "outline" as const,
+    highlight: false,
   },
   {
-    name: "Pro",
-    price: "R$ 49",
-    period: "/mês",
-    description: "Para times que estão crescendo e precisam escalar.",
-    features: [
-      "Colaboradores ilimitados",
-      "Leads ilimitados",
-      "Pipeline Kanban completo",
-      "Timeline de atividades",
-      "Dashboard de métricas",
-      "Suporte prioritário",
-    ],
+    ...planDefinitions.pro,
     cta: "Assinar Pro",
     variant: "brand" as const,
     highlight: true,
@@ -64,9 +46,7 @@ export function PricingSection() {
             <Card
               key={plan.name}
               className={
-                plan.highlight
-                  ? "relative border-brand shadow-lg ring-1 ring-brand"
-                  : "relative"
+                plan.highlight ? "relative border-brand shadow-lg ring-1 ring-brand" : "relative"
               }
             >
               {plan.highlight ? (
