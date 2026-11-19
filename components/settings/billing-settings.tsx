@@ -16,9 +16,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { mockLeads, mockSubscriptions } from "@/lib/mock-data";
+import { mockLeads } from "@/lib/mock-data";
 import { planOrder, plans } from "@/lib/plans";
 import { cn, formatDate } from "@/lib/utils";
+import type { Subscription } from "@/types/workspace";
 
 type StripeAction = "checkout" | "portal";
 
@@ -29,20 +30,19 @@ const stripeActionNotice: Record<StripeAction, string> = {
     "Aqui você seria levado ao Customer Portal do Stripe para trocar cartão, ver faturas ou cancelar. A integração entra no M13.",
 };
 
-export function BillingSettings() {
+export function BillingSettings({ subscription }: { subscription: Subscription | null }) {
   const { current } = useWorkspace();
 
   // key: ao trocar de workspace o aviso de ação simulada some.
-  return <BillingSettingsContent key={current.id} />;
+  return <BillingSettingsContent key={current.id} subscription={subscription} />;
 }
 
-function BillingSettingsContent() {
+function BillingSettingsContent({ subscription }: { subscription: Subscription | null }) {
   const { current } = useWorkspace();
   const { seatsUsed, seatLimit, canManage } = useWorkspaceTeam();
   const [pending, setPending] = React.useState<StripeAction | null>(null);
   const [notice, setNotice] = React.useState<StripeAction | null>(null);
 
-  const subscription = mockSubscriptions.find((item) => item.workspaceId === current.id);
   const plan = plans[current.plan];
   const isPro = current.plan === "pro";
 

@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 
 import { MobileSidebar } from "@/components/shell/mobile-sidebar";
 import { Sidebar } from "@/components/shell/sidebar";
 import { WorkspaceProvider } from "@/components/shell/workspace-provider";
+import { getActiveWorkspace, getCurrentUser, getWorkspaces } from "@/lib/workspaces/queries";
 
 export const metadata: Metadata = {
   title: {
@@ -11,9 +13,18 @@ export const metadata: Metadata = {
   },
 };
 
-export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
+  const [user, workspaces, current] = await Promise.all([
+    getCurrentUser(),
+    getWorkspaces(),
+    getActiveWorkspace(),
+  ]);
+
+  if (!user) redirect("/login");
+  if (!current) redirect("/onboarding");
+
   return (
-    <WorkspaceProvider>
+    <WorkspaceProvider user={user} workspaces={workspaces} current={current}>
       <div className="flex min-h-screen bg-background">
         <Sidebar />
 

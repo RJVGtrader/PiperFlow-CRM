@@ -3,10 +3,11 @@
 import * as React from "react";
 import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CheckCircle2, Loader2, Mail, RotateCw, Sparkles, Trash2, X } from "lucide-react";
+import { AlertCircle, Loader2, Mail, RotateCw, Sparkles, Trash2, X } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
+import { InviteDeliveryNotice } from "@/components/settings/invite-delivery-notice";
 import { useWorkspaceTeam } from "@/components/settings/team-provider";
 import { useWorkspace } from "@/components/shell/workspace-provider";
 import {
@@ -50,6 +51,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { formatDate, getInitials } from "@/lib/utils";
+import type { ActionResult, InviteDelivery } from "@/lib/workspaces/actions";
 import type { MemberRole, WorkspaceMember } from "@/types/workspace";
 
 const roleOptions: { value: MemberRole; label: string; description: string }[] = [
@@ -66,13 +68,46 @@ const inviteSchema = z.object({
 
 type InviteValues = z.infer<typeof inviteSchema>;
 
+/** Executa uma Server Action da equipe, guardando o erro (se houver) para exibir. */
+function useTeamAction() {
+  const [isPending, startTransition] = React.useTransition();
+  const [error, setError] = React.useState<string | null>(null);
+  const [delivery, setDelivery] = React.useState<InviteDelivery | null>(null);
+
+  function run(action: () => Promise<ActionResult<unknown>>) {
+    setError(null);
+    setDelivery(null);
+    startTransition(async () => {
+      const result = await action();
+      if (!result.ok) {
+        setError(result.error);
+      } else if (result.data && typeof result.data === "object" && "inviteUrl" in result.data) {
+        setDelivery(result.data as InviteDelivery);
+      }
+    });
+  }
+
+  return { run, isPending, error, delivery };
+}
+
 export function MembersSettings() {
   const { current } = useWorkspace();
   const team = useWorkspaceTeam();
+  const action = useTeamAction();
 
   return (
     <div className="space-y-6">
       {team.canManage && <InviteCard key={current.id} />}
+
+      {action.error && (
+        <div
+          role="alert"
+          className="flex items-start gap-2 rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive"
+        >
+          <AlertCircle className="mt-0.5 size-4 shrink-0" />
+          {action.error}
+        </div>
+      )}
 
       <Card>
         <CardHeader>
@@ -124,7 +159,10 @@ export function MembersSettings() {
                         {team.canManage && !isSelf ? (
                           <Select
                             value={member.role}
-                            onValueChange={(role) => team.updateRole(member.id, role as MemberRole)}
+                            disabled={action.isPending}
+                            onValueChange={(role) =>
+                              action.run(() => team.updateRole(member.id, role as MemberRole))
+                            }
                           >
                             <SelectTrigger
                               className="h-8 w-[7.5rem]"
@@ -152,7 +190,12 @@ export function MembersSettings() {
                       {team.canManage && (
                         <TableCell className="text-right">
                           {!isSelf && (
-                            <RemoveMemberDialog member={member} onConfirm={team.removeMember} />
+                            <RemoveMemberDialog
+                              member={member}
+                              onConfirm={(memberId) =>
+                                action.run(() => team.removeMember(memberId))
+                              }
+                            />
                           )}
                         </TableCell>
                       )}
@@ -174,7 +217,8 @@ export function MembersSettings() {
               {team.seatLimit !== null && " Convites pendentes contam no limite do plano Free."}
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-4">
+            {action.delivery && <InviteDeliveryNotice delivery={action.delivery} />}
             <ul className="divide-y divide-border rounded-lg border border-border">
               {team.invites.map((invite) => (
                 <li
@@ -197,7 +241,8 @@ export function MembersSettings() {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => team.resendInvite(invite.id)}
+                        disabled={action.isPending}
+                        onClick={() => action.run(() => team.resendInvite(invite.id))}
                       >
                         <RotateCw className="size-3.5" />
                         Reenviar
@@ -206,7 +251,8 @@ export function MembersSettings() {
                         variant="ghost"
                         size="sm"
                         className="text-muted-foreground hover:text-destructive"
-                        onClick={() => team.cancelInvite(invite.id)}
+                        disabled={action.isPending}
+                        onClick={() => action.run(() => team.cancelInvite(invite.id))}
                       >
                         <X className="size-3.5" />
                         Cancelar
@@ -226,7 +272,7 @@ export function MembersSettings() {
 function InviteCard() {
   const { current } = useWorkspace();
   const team = useWorkspaceTeam();
-  const [sentTo, setSentTo] = React.useState<string | null>(null);
+  const [delivery, setDelivery] = React.useState<InviteDelivery | null>(null);
 
   const form = useForm<InviteValues>({
     resolver: zodResolver(inviteSchema),
@@ -245,10 +291,13 @@ function InviteCard() {
       return;
     }
 
-    await new Promise((resolve) => setTimeout(resolve, 700));
-    team.inviteMember(email, values.role);
+    const result = await team.inviteMember(email, values.role);
+    if (!result.ok) {
+      form.setError("email", { message: result.error });
+      return;
+    }
     form.reset({ email: "", role: values.role });
-    setSentTo(email);
+    setDelivery(result.data);
   }
 
   const { seatLimit, seatsUsed, isAtSeatLimit } = team;
@@ -305,7 +354,7 @@ function InviteCard() {
                         {...field}
                         onChange={(event) => {
                           field.onChange(event);
-                          setSentTo(null);
+                          setDelivery(null);
                         }}
                       />
                     </FormControl>
@@ -354,12 +403,7 @@ function InviteCard() {
           </Form>
         )}
 
-        {sentTo && (
-          <p className="flex items-center gap-1.5 text-sm text-brand">
-            <CheckCircle2 className="size-4" />
-            Convite registrado para {sentTo}. O envio real por e-mail (Resend) entra no M9.
-          </p>
-        )}
+        {delivery && <InviteDeliveryNotice delivery={delivery} />}
       </CardContent>
     </Card>
   );

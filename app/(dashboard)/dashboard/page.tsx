@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { getDashboardMetrics, getFunnelData, getUpcomingDeals } from "@/lib/metrics";
 import { mockCurrentUser, mockDeals, mockLeads } from "@/lib/mock-data";
 import { formatCurrency } from "@/lib/utils";
+import { getCurrentUser } from "@/lib/workspaces/queries";
 
 export const metadata: Metadata = {
   title: "Dashboard",
@@ -17,11 +18,13 @@ export const metadata: Metadata = {
 // Prazos ("hoje", "atrasado") dependem da data da requisição, não da data do build.
 export const dynamic = "force-dynamic";
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  const user = await getCurrentUser();
   const metrics = getDashboardMetrics(mockLeads, mockDeals);
   const funnel = getFunnelData(mockDeals);
+  // Negócios ainda são mock (M12): filtra pelo responsável fictício dos mocks.
   const upcomingDeals = getUpcomingDeals(mockDeals, mockCurrentUser.name);
-  const firstName = mockCurrentUser.name.split(" ")[0];
+  const firstName = user?.name.split(" ")[0] ?? "";
 
   return (
     <div className="space-y-6">

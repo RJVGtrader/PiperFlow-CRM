@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { plans } from "@/lib/plans";
+import { renameWorkspace } from "@/lib/workspaces/actions";
 import type { Workspace } from "@/types/workspace";
 
 const workspaceSchema = z.object({
@@ -43,7 +44,6 @@ export function WorkspaceSettings() {
 }
 
 function WorkspaceSettingsContent({ workspace }: { workspace: Workspace }) {
-  const { renameWorkspace } = useWorkspace();
   const { members, currentMember, canManage } = useWorkspaceTeam();
   const [status, setStatus] = React.useState<"idle" | "saving" | "saved">("idle");
 
@@ -54,8 +54,12 @@ function WorkspaceSettingsContent({ workspace }: { workspace: Workspace }) {
 
   async function onSubmit(values: WorkspaceValues) {
     setStatus("saving");
-    await new Promise((resolve) => setTimeout(resolve, 600));
-    renameWorkspace(workspace.id, values.name);
+    const result = await renameWorkspace(workspace.id, values.name);
+    if (!result.ok) {
+      form.setError("name", { message: result.error });
+      setStatus("idle");
+      return;
+    }
     form.reset(values);
     setStatus("saved");
   }

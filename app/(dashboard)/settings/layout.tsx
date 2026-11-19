@@ -1,7 +1,15 @@
+import { redirect } from "next/navigation";
+
 import { SettingsNav } from "@/components/settings/settings-nav";
 import { TeamProvider } from "@/components/settings/team-provider";
+import { getActiveWorkspace, getWorkspaceTeam } from "@/lib/workspaces/queries";
 
-export default function SettingsLayout({ children }: { children: React.ReactNode }) {
+export default async function SettingsLayout({ children }: { children: React.ReactNode }) {
+  const workspace = await getActiveWorkspace();
+  if (!workspace) redirect("/onboarding");
+
+  const { members, invites } = await getWorkspaceTeam(workspace.id);
+
   return (
     <div className="space-y-6">
       <div>
@@ -11,7 +19,9 @@ export default function SettingsLayout({ children }: { children: React.ReactNode
 
       <SettingsNav />
 
-      <TeamProvider>{children}</TeamProvider>
+      <TeamProvider members={members} invites={invites}>
+        {children}
+      </TeamProvider>
     </div>
   );
 }

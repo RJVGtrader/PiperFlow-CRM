@@ -1,6 +1,7 @@
 "use client";
 
-import { Check, ChevronsUpDown, Plus } from "lucide-react";
+import Link from "next/link";
+import { Check, ChevronsUpDown, Loader2, Plus } from "lucide-react";
 
 import { useWorkspace } from "@/components/shell/workspace-provider";
 import { Button } from "@/components/ui/button";
@@ -14,7 +15,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 export function WorkspaceSwitcher() {
-  const { workspaces, current, setCurrentId } = useWorkspace();
+  const { workspaces, current, setCurrentId, isSwitching } = useWorkspace();
 
   return (
     <DropdownMenu>
@@ -26,7 +27,11 @@ export function WorkspaceSwitcher() {
             </span>
             <span className="truncate text-sm font-medium">{current.name}</span>
           </span>
-          <ChevronsUpDown className="size-4 shrink-0 text-muted-foreground" />
+          {isSwitching ? (
+            <Loader2 className="size-4 shrink-0 animate-spin text-muted-foreground" />
+          ) : (
+            <ChevronsUpDown className="size-4 shrink-0 text-muted-foreground" />
+          )}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-64" align="start">
@@ -46,9 +51,11 @@ export function WorkspaceSwitcher() {
           </DropdownMenuItem>
         ))}
         <DropdownMenuSeparator />
-        <DropdownMenuItem disabled className="gap-2 text-muted-foreground">
-          <Plus className="size-4" />
-          Criar workspace
+        <DropdownMenuItem asChild className="gap-2">
+          <Link href="/onboarding">
+            <Plus className="size-4" />
+            Criar workspace
+          </Link>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

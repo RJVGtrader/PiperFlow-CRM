@@ -2,13 +2,15 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Building2, CheckCircle2, Loader2, Plus, Users, X } from "lucide-react";
+import { AlertCircle, Building2, CheckCircle2, Loader2, Plus, Users, X } from "lucide-react";
 import { z } from "zod";
 
+import { InviteDeliveryNotice } from "@/components/settings/invite-delivery-notice";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import { createWorkspace, type InviteDelivery } from "@/lib/workspaces/actions";
 
 const emailSchema = z.string().email("E-mail inválido.");
 const MAX_INVITES = 4;
@@ -32,6 +34,8 @@ export function OnboardingFlow() {
   const [inviteErrors, setInviteErrors] = React.useState<(string | undefined)[]>([undefined]);
 
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [submitError, setSubmitError] = React.useState<string>();
+  const [deliveries, setDeliveries] = React.useState<InviteDelivery[]>([]);
 
   function handleContinueFromWorkspace(event: React.FormEvent) {
     event.preventDefault();
@@ -67,26 +71,31 @@ export function OnboardingFlow() {
     return errors.every((error) => !error);
   }
 
-  async function finishOnboarding() {
+  // O workspace só é criado aqui, no fim: voltar/pular não deixa workspace órfão.
+  async function finishOnboarding(emails: string[]) {
     setIsSubmitting(true);
-    await new Promise((resolve) => setTimeout(resolve, 900));
+    setSubmitError(undefined);
+    const result = await createWorkspace(workspaceName, emails);
     setIsSubmitting(false);
+    if (!result.ok) {
+      setSubmitError(result.error);
+      return;
+    }
+    setDeliveries(result.data.invites);
     setStep("done");
   }
 
   async function handleContinueFromInvites(event: React.FormEvent) {
     event.preventDefault();
     if (!validateInvites()) return;
-    await finishOnboarding();
+    await finishOnboarding(invites.map((email) => email.trim()).filter(Boolean));
   }
 
   async function handleSkipInvites() {
     setInvites([""]);
     setInviteErrors([undefined]);
-    await finishOnboarding();
+    await finishOnboarding([]);
   }
-
-  const invitedEmails = invites.map((email) => email.trim()).filter(Boolean);
 
   return (
     <div className="mx-auto w-full max-w-md space-y-6">
@@ -198,6 +207,16 @@ export function OnboardingFlow() {
               )}
             </div>
 
+            {submitError && (
+              <div
+                role="alert"
+                className="flex items-start gap-2 rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive"
+              >
+                <AlertCircle className="mt-0.5 size-4 shrink-0" />
+                {submitError}
+              </div>
+            )}
+
             <div className="flex flex-col gap-2 sm:flex-row-reverse">
               <Button type="submit" variant="brand" className="flex-1" disabled={isSubmitting}>
                 {isSubmitting ? (
@@ -230,13 +249,19 @@ export function OnboardingFlow() {
             <div className="space-y-1.5">
               <h1 className="text-xl font-semibold">Tudo pronto, {workspaceName}!</h1>
               <p className="text-sm text-muted-foreground">
-                {invitedEmails.length > 0
-                  ? `Convite simulado para ${invitedEmails.length} ${
-                      invitedEmails.length === 1 ? "pessoa" : "pessoas"
-                    }. O envio real por e-mail entra no M9.`
+                {deliveries.length > 0
+                  ? `${deliveries.length} ${deliveries.length === 1 ? "convite criado" : "convites criados"}.`
                   : "Você pode convidar colegas depois em Settings."}
               </p>
             </div>
+
+            {deliveries.length > 0 && (
+              <div className="space-y-2 text-left">
+                {deliveries.map((delivery) => (
+                  <InviteDeliveryNotice key={delivery.email} delivery={delivery} />
+                ))}
+              </div>
+            )}
 
             <div className="flex flex-col gap-2">
               <Button asChild variant="brand" className="w-full">

@@ -288,5 +288,78 @@ console.log("\nPedro (membro só da Agência Nova)");
   }
 }
 
+console.log("\nConvites (get_invite / accept_invite)");
+{
+  const unknown = await api(null, "POST", "rpc/get_invite", {
+    invite_token: "00000000-0000-4000-a000-000000000000",
+  });
+  check("token desconhecido não revela nada", rows(unknown).length === 0, unknown);
+
+  const created = await api(ana, "POST", "workspace_invites", {
+    workspace_id: ACME,
+    email: "pedro@agencianova.com.br",
+    invited_by: ANA,
+  });
+  const token = rows(created)[0]?.token;
+  check("admin convida o Pedro para a Acme", created.status === 201 && token, created);
+
+  if (token) {
+    const preview = await api(null, "POST", "rpc/get_invite", { invite_token: token });
+    check(
+      "visitante com o token vê o nome do workspace",
+      rows(preview)[0]?.workspace_name === "Acme Vendas",
+      preview
+    );
+
+    const anonAccept = await api(null, "POST", "rpc/accept_invite", { invite_token: token });
+    check("visitante não aceita convite", anonAccept.status >= 400, anonAccept);
+
+    const wrongUser = await api(carlos, "POST", "rpc/accept_invite", { invite_token: token });
+    check("outro usuário não aceita convite de outro e-mail", wrongUser.status >= 400, wrongUser);
+
+    const accepted = await api(pedro, "POST", "rpc/accept_invite", { invite_token: token });
+    check("convidado aceita e recebe o workspace", accepted.data === ACME, accepted);
+    check(
+      "Pedro passa a ver a Acme",
+      rows(await api(pedro, "GET", `workspaces?id=eq.${ACME}&select=id`)).length === 1
+    );
+
+    const reused = await api(pedro, "POST", "rpc/accept_invite", { invite_token: token });
+    check("convite não pode ser reutilizado", reused.status >= 400, reused);
+
+    const cleanup = await api(
+      ana,
+      "DELETE",
+      `workspace_members?workspace_id=eq.${ACME}&user_id=eq.${PEDRO}`
+    );
+    check("(limpeza) Ana remove o Pedro da Acme", rows(cleanup).length === 1, cleanup);
+  }
+
+  const expired = await api(
+    null,
+    "POST",
+    "workspace_invites",
+    {
+      workspace_id: ACME,
+      email: "pedro@agencianova.com.br",
+      invited_by: ANA,
+      expires_at: new Date(Date.now() - 86_400_000).toISOString(),
+    },
+    { asServiceRole: true }
+  );
+  const expiredRow = rows(expired)[0];
+  if (expiredRow) {
+    const result = await api(pedro, "POST", "rpc/accept_invite", {
+      invite_token: expiredRow.token,
+    });
+    check("convite expirado é recusado", result.status >= 400, result);
+    await api(null, "DELETE", `workspace_invites?id=eq.${expiredRow.id}`, null, {
+      asServiceRole: true,
+    });
+  } else {
+    check("(preparo) cria convite expirado", false, expired);
+  }
+}
+
 console.log(failures === 0 ? "\nTodos os testes passaram." : `\n${failures} teste(s) falharam.`);
 process.exit(failures === 0 ? 0 : 1);
