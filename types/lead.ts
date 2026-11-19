@@ -1,4 +1,6 @@
-export type LeadStatus = "novo" | "contatado" | "qualificado" | "desqualificado";
+import type { Enums } from "@/lib/supabase/database.types";
+
+export type LeadStatus = Enums<"lead_status">;
 
 export interface Lead {
   id: string;

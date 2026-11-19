@@ -1,4 +1,6 @@
-export type WorkspacePlan = "free" | "pro";
+import type { Enums } from "@/lib/supabase/database.types";
+
+export type WorkspacePlan = Enums<"subscription_plan">;
 
 export interface Workspace {
   id: string;
@@ -6,7 +8,7 @@ export interface Workspace {
   plan: WorkspacePlan;
 }
 
-export type MemberRole = "admin" | "membro";
+export type MemberRole = Enums<"member_role">;
 
 export interface WorkspaceMember {
   id: string;

@@ -1,10 +1,6 @@
-export type DealStage =
-  | "novo_lead"
-  | "contato_realizado"
-  | "proposta_enviada"
-  | "negociacao"
-  | "fechado_ganho"
-  | "fechado_perdido";
+import type { Enums } from "@/lib/supabase/database.types";
+
+export type DealStage = Enums<"deal_stage">;
 
 export interface Deal {
   id: string;
