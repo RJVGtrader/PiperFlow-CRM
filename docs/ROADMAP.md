@@ -129,9 +129,9 @@ Cada milestone: branch dedicada a partir de `main`, merge via PR ao final, commi
 **Objetivo:** Telas de configuração do workspace com dados mockados.
 
 **Entregas:**
-- [ ] Tela de dados do workspace (nome, etc.)
-- [ ] Lista de membros + formulário de convite por e-mail (mock)
-- [ ] Tela de plano/billing (Free vs Pro, mock)
+- [x] Tela de dados do workspace (nome, etc.)
+- [x] Lista de membros + formulário de convite por e-mail (mock)
+- [x] Tela de plano/billing (Free vs Pro, mock)
 
 **Commit final:** `feat: UI de settings do workspace`
 
