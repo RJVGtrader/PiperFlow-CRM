@@ -9,17 +9,26 @@ interface WorkspaceContextValue {
   workspaces: Workspace[];
   current: Workspace;
   setCurrentId: (id: string) => void;
+  /** Renomeia em memória (mock). No M9 vira Server Action. */
+  renameWorkspace: (id: string, name: string) => void;
 }
 
 const WorkspaceContext = React.createContext<WorkspaceContextValue | null>(null);
 
 export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
+  const [workspaces, setWorkspaces] = React.useState(mockWorkspaces);
   const [currentId, setCurrentId] = React.useState(mockWorkspaces[0].id);
-  const current = mockWorkspaces.find((workspace) => workspace.id === currentId) ?? mockWorkspaces[0];
+  const current = workspaces.find((workspace) => workspace.id === currentId) ?? workspaces[0];
+
+  const renameWorkspace = React.useCallback((id: string, name: string) => {
+    setWorkspaces((prev) =>
+      prev.map((workspace) => (workspace.id === id ? { ...workspace, name } : workspace))
+    );
+  }, []);
 
   const value = React.useMemo(
-    () => ({ workspaces: mockWorkspaces, current, setCurrentId }),
-    [current]
+    () => ({ workspaces, current, setCurrentId, renameWorkspace }),
+    [workspaces, current, renameWorkspace]
   );
 
   return <WorkspaceContext.Provider value={value}>{children}</WorkspaceContext.Provider>;
