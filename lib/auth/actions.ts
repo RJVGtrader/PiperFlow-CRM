@@ -29,10 +29,14 @@ function translateAuthError(message: string) {
     return "Confirme seu e-mail antes de entrar. Verifique sua caixa de entrada.";
   }
   if (normalized.includes("already registered")) return "Já existe uma conta com esse e-mail.";
+  if (normalized.includes("email rate limit") || normalized.includes("sending confirmation")) {
+    return "Não conseguimos enviar o e-mail de confirmação agora. Tente novamente em alguns minutos.";
+  }
   if (normalized.includes("rate limit")) {
     return "Muitas tentativas em pouco tempo. Aguarde alguns minutos e tente de novo.";
   }
   if (normalized.includes("password")) return "Senha fraca: use pelo menos 8 caracteres.";
+  console.error("Erro não mapeado do Supabase Auth:", message);
   return "Não foi possível concluir agora. Tente novamente.";
 }
 
