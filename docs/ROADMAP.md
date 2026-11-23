@@ -259,6 +259,7 @@ Cada milestone: branch dedicada a partir de `main`, merge via PR ao final, commi
 - [ ] Migrations aplicadas no projeto Supabase de produção
 - [ ] Deploy de produção na Vercel
 - [ ] Domínio configurado
+- [ ] Domínio verificado no Resend (sem ele só envia para o dono da conta) + Resend como SMTP do Supabase de produção, com Site URL e Redirect URL (`/callback`) do domínio
 - [ ] Webhook do Stripe apontando para produção
 - [ ] Smoke test dos fluxos críticos em produção
 
