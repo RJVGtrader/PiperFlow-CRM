@@ -2,33 +2,47 @@
 
 import * as React from "react";
 
-import { mockWorkspaces } from "@/lib/mock-data";
-import type { Workspace } from "@/types/workspace";
+import { switchWorkspace } from "@/lib/workspaces/actions";
+import type { CurrentUser, Workspace } from "@/types/workspace";
 
 interface WorkspaceContextValue {
+  user: CurrentUser;
   workspaces: Workspace[];
   current: Workspace;
+  /** Troca o workspace ativo (cookie validado no servidor) e recarrega os dados. */
   setCurrentId: (id: string) => void;
-  /** Renomeia em memória (mock). No M9 vira Server Action. */
-  renameWorkspace: (id: string, name: string) => void;
+  isSwitching: boolean;
 }
 
 const WorkspaceContext = React.createContext<WorkspaceContextValue | null>(null);
 
-export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
-  const [workspaces, setWorkspaces] = React.useState(mockWorkspaces);
-  const [currentId, setCurrentId] = React.useState(mockWorkspaces[0].id);
-  const current = workspaces.find((workspace) => workspace.id === currentId) ?? workspaces[0];
+/** Dados vêm do layout (Server Component); este provider só os distribui. */
+export function WorkspaceProvider({
+  user,
+  workspaces,
+  current,
+  children,
+}: {
+  user: CurrentUser;
+  workspaces: Workspace[];
+  current: Workspace;
+  children: React.ReactNode;
+}) {
+  const [isSwitching, startTransition] = React.useTransition();
 
-  const renameWorkspace = React.useCallback((id: string, name: string) => {
-    setWorkspaces((prev) =>
-      prev.map((workspace) => (workspace.id === id ? { ...workspace, name } : workspace))
-    );
-  }, []);
+  const setCurrentId = React.useCallback(
+    (id: string) => {
+      if (id === current.id) return;
+      startTransition(async () => {
+        await switchWorkspace(id);
+      });
+    },
+    [current.id]
+  );
 
   const value = React.useMemo(
-    () => ({ workspaces, current, setCurrentId, renameWorkspace }),
-    [workspaces, current, renameWorkspace]
+    () => ({ user, workspaces, current, setCurrentId, isSwitching }),
+    [user, workspaces, current, setCurrentId, isSwitching]
   );
 
   return <WorkspaceContext.Provider value={value}>{children}</WorkspaceContext.Provider>;

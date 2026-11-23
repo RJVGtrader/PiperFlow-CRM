@@ -265,6 +265,7 @@ export type Database = {
           expires_at: string
           id: string
           invited_by: string | null
+          last_sent_at: string
           role: Database["public"]["Enums"]["member_role"]
           token: string
           workspace_id: string
@@ -275,6 +276,7 @@ export type Database = {
           expires_at?: string
           id?: string
           invited_by?: string | null
+          last_sent_at?: string
           role?: Database["public"]["Enums"]["member_role"]
           token?: string
           workspace_id: string
@@ -285,6 +287,7 @@ export type Database = {
           expires_at?: string
           id?: string
           invited_by?: string | null
+          last_sent_at?: string
           role?: Database["public"]["Enums"]["member_role"]
           token?: string
           workspace_id?: string
@@ -382,6 +385,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      accept_invite: { Args: { invite_token: string }; Returns: string }
       create_workspace: {
         Args: { workspace_name: string }
         Returns: {
@@ -397,6 +401,16 @@ export type Database = {
           isOneToOne: true
           isSetofReturn: false
         }
+      }
+      get_invite: {
+        Args: { invite_token: string }
+        Returns: {
+          email: string
+          expires_at: string
+          invited_by_name: string
+          role: Database["public"]["Enums"]["member_role"]
+          workspace_name: string
+        }[]
       }
     }
     Enums: {

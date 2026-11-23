@@ -160,11 +160,11 @@ Cada milestone: branch dedicada a partir de `main`, merge via PR ao final, commi
 **Objetivo:** Conectar as telas de auth (M2) e o workspace switcher (M3/M7) ao Supabase Auth e ao banco real.
 
 **Entregas:**
-- [ ] Login/cadastro funcionais via Supabase Auth
-- [ ] Middleware de proteção de rotas autenticadas
-- [ ] Criação de workspace real no onboarding
-- [ ] Convite de colaborador por e-mail via Resend + tela de aceite
-- [ ] Troca de workspace ligada ao banco (papéis admin/membro)
+- [x] Login/cadastro funcionais via Supabase Auth
+- [x] Middleware de proteção de rotas autenticadas
+- [x] Criação de workspace real no onboarding
+- [x] Convite de colaborador por e-mail via Resend + tela de aceite (sem `RESEND_API_KEY`, o admin recebe o link para copiar)
+- [x] Troca de workspace ligada ao banco (papéis admin/membro)
 
 **Commit final:** `feat: autenticação e workspaces integrados ao Supabase`
 
@@ -259,6 +259,7 @@ Cada milestone: branch dedicada a partir de `main`, merge via PR ao final, commi
 - [ ] Migrations aplicadas no projeto Supabase de produção
 - [ ] Deploy de produção na Vercel
 - [ ] Domínio configurado
+- [ ] Domínio verificado no Resend (sem ele só envia para o dono da conta) + Resend como SMTP do Supabase de produção, com Site URL e Redirect URL (`/callback`) do domínio
 - [ ] Webhook do Stripe apontando para produção
 - [ ] Smoke test dos fluxos críticos em produção
 

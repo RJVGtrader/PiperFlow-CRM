@@ -2,9 +2,8 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2 } from "lucide-react";
+import { AlertCircle, Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -20,6 +19,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { signIn } from "@/lib/auth/actions";
 
 const loginSchema = z.object({
   email: z.string().min(1, "Informe seu e-mail.").email("Informe um e-mail válido."),
@@ -29,25 +29,45 @@ const loginSchema = z.object({
 
 type LoginValues = z.infer<typeof loginSchema>;
 
-export function LoginForm() {
-  const router = useRouter();
+export function LoginForm({
+  next,
+  defaultEmail = "",
+  initialError,
+}: {
+  next?: string;
+  defaultEmail?: string;
+  initialError?: string;
+}) {
   const [status, setStatus] = React.useState<"idle" | "loading">("idle");
+  const [error, setError] = React.useState(initialError);
 
   const form = useForm<LoginValues>({
     resolver: zodResolver(loginSchema),
-    defaultValues: { email: "", password: "", remember: false },
+    defaultValues: { email: defaultEmail, password: "", remember: true },
   });
 
-  // Login simulado: a autenticação real via Supabase Auth entra no M9.
-  async function onSubmit() {
+  async function onSubmit(values: LoginValues) {
     setStatus("loading");
-    await new Promise((resolve) => setTimeout(resolve, 900));
-    router.push("/dashboard");
+    setError(undefined);
+    // Em caso de sucesso a action redireciona e não retorna.
+    const result = await signIn(values, next);
+    if ("error" in result) setError(result.error);
+    setStatus("idle");
   }
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} noValidate className="space-y-5">
+        {error && (
+          <div
+            role="alert"
+            className="flex items-start gap-2 rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive"
+          >
+            <AlertCircle className="mt-0.5 size-4 shrink-0" />
+            {error}
+          </div>
+        )}
+
         <FormField
           control={form.control}
           name="email"

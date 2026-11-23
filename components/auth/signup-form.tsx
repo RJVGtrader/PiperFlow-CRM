@@ -1,9 +1,8 @@
 "use client";
 
 import * as React from "react";
-import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2 } from "lucide-react";
+import { AlertCircle, Loader2, MailCheck } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -19,6 +18,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { signUp } from "@/lib/auth/actions";
 
 const signupSchema = z
   .object({
@@ -37,24 +37,64 @@ const signupSchema = z
 
 type SignupValues = z.infer<typeof signupSchema>;
 
-export function SignupForm() {
-  const router = useRouter();
+export function SignupForm({ next, defaultEmail = "" }: { next?: string; defaultEmail?: string }) {
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [error, setError] = React.useState<string>();
+  const [confirmationSentTo, setConfirmationSentTo] = React.useState<string>();
 
   const form = useForm<SignupValues>({
     resolver: zodResolver(signupSchema),
-    defaultValues: { name: "", email: "", password: "", confirmPassword: "", terms: false },
+    defaultValues: {
+      name: "",
+      email: defaultEmail,
+      password: "",
+      confirmPassword: "",
+      terms: false,
+    },
   });
 
-  async function onSubmit() {
+  async function onSubmit(values: SignupValues) {
     setIsSubmitting(true);
-    await new Promise((resolve) => setTimeout(resolve, 900));
-    router.push("/onboarding");
+    setError(undefined);
+    // Sem confirmação de e-mail a action redireciona e não retorna.
+    const result = await signUp(
+      { name: values.name, email: values.email, password: values.password },
+      next
+    );
+    if ("error" in result) setError(result.error);
+    else setConfirmationSentTo(result.email);
+    setIsSubmitting(false);
+  }
+
+  if (confirmationSentTo) {
+    return (
+      <div className="space-y-3 text-center">
+        <div className="mx-auto flex size-10 items-center justify-center rounded-full bg-brand/10 text-brand">
+          <MailCheck className="size-5" />
+        </div>
+        <p className="font-medium">Confirme seu e-mail</p>
+        <p className="text-sm text-muted-foreground">
+          Enviamos um link de confirmação para{" "}
+          <span className="font-medium text-foreground">{confirmationSentTo}</span>. Abra o link
+          para ativar sua conta e continuar.
+        </p>
+      </div>
+    );
   }
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} noValidate className="space-y-5">
+        {error && (
+          <div
+            role="alert"
+            className="flex items-start gap-2 rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive"
+          >
+            <AlertCircle className="mt-0.5 size-4 shrink-0" />
+            {error}
+          </div>
+        )}
+
         <FormField
           control={form.control}
           name="name"
@@ -76,7 +116,12 @@ export function SignupForm() {
             <FormItem>
               <FormLabel>E-mail</FormLabel>
               <FormControl>
-                <Input type="email" placeholder="voce@empresa.com" autoComplete="email" {...field} />
+                <Input
+                  type="email"
+                  placeholder="voce@empresa.com"
+                  autoComplete="email"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
