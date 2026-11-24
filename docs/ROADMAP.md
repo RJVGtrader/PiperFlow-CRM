@@ -177,9 +177,9 @@ Cada milestone: branch dedicada a partir de `main`, merge via PR ao final, commi
 **Objetivo:** Ligar a UI de leads (M4) a Server Actions e ao banco.
 
 **Entregas:**
-- [ ] Server Actions: criar, editar, excluir lead
-- [ ] Busca e filtros com query real no Supabase
-- [ ] Página de detalhe com dados reais
+- [x] Server Actions: criar, editar, excluir lead (só o nome é obrigatório, como no banco)
+- [x] Busca e filtros com query real no Supabase (status, responsável e data, via URL)
+- [x] Página de detalhe com dados reais (escopada ao workspace ativo)
 
 **Commit final:** `feat: CRUD de leads integrado ao Supabase`
 
