@@ -2,9 +2,8 @@
 
 import * as React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2 } from "lucide-react";
+import { AlertCircle, Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 
 import { leadStatusOptions } from "@/components/leads/lead-status-badge";
 import { Button } from "@/components/ui/button";
@@ -24,29 +23,30 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { mockOwners } from "@/lib/mock-data";
-import type { Lead, LeadStatus } from "@/types/lead";
+import { leadSchema, NO_OWNER, type LeadFormValues } from "@/lib/leads/schema";
+import type { Lead, LeadOwnerOption, LeadStatus } from "@/types/lead";
 
-const leadSchema = z.object({
-  name: z.string().min(2, "Informe o nome do lead."),
-  email: z.string().min(1, "Informe o e-mail.").email("Informe um e-mail válido."),
-  phone: z.string().min(8, "Informe um telefone válido."),
-  company: z.string().min(1, "Informe a empresa."),
-  jobTitle: z.string().min(1, "Informe o cargo."),
-  status: z.enum(["novo", "contatado", "qualificado", "desqualificado"]),
-  ownerName: z.string().min(1, "Selecione um responsável."),
-});
-
-export type LeadFormValues = z.infer<typeof leadSchema>;
+export type { LeadFormValues };
 
 interface LeadFormProps {
   defaultValues?: Partial<Lead>;
+  /** Membros do workspace ativo que podem ser responsáveis. */
+  owners: LeadOwnerOption[];
+  /** Responsável pré-selecionado em um lead novo. */
+  defaultOwnerId?: string;
   submitLabel: string;
-  onSubmit: (values: LeadFormValues) => Promise<void> | void;
+  /** Retorna uma mensagem de erro para exibir, ou nada em caso de sucesso. */
+  onSubmit: (values: LeadFormValues) => Promise<string | void>;
 }
 
-export function LeadForm({ defaultValues, submitLabel, onSubmit }: LeadFormProps) {
+/** Responsável que já não é membro não pode ser regravado (RLS): cai para "sem responsável". */
+function resolveOwnerId(owners: LeadOwnerOption[], ownerId: string | null | undefined) {
+  return ownerId && owners.some((owner) => owner.id === ownerId) ? ownerId : NO_OWNER;
+}
+
+export function LeadForm({ defaultValues, owners, defaultOwnerId, submitLabel, onSubmit }: LeadFormProps) {
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
 
   const form = useForm<LeadFormValues>({
     resolver: zodResolver(leadSchema),
@@ -57,19 +57,31 @@ export function LeadForm({ defaultValues, submitLabel, onSubmit }: LeadFormProps
       company: defaultValues?.company ?? "",
       jobTitle: defaultValues?.jobTitle ?? "",
       status: defaultValues?.status ?? "novo",
-      ownerName: defaultValues?.ownerName ?? mockOwners[0],
+      ownerId: resolveOwnerId(owners, defaultValues ? defaultValues.ownerId : defaultOwnerId),
     },
   });
 
   async function handleSubmit(values: LeadFormValues) {
     setIsSubmitting(true);
-    await onSubmit(values);
+    setError(null);
+    const result = await onSubmit(values);
+    if (result) setError(result);
     setIsSubmitting(false);
   }
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} noValidate className="space-y-4">
+        {error && (
+          <div
+            role="alert"
+            className="flex items-start gap-2 rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive"
+          >
+            <AlertCircle className="mt-0.5 size-4 shrink-0" />
+            {error}
+          </div>
+        )}
+
         <FormField
           control={form.control}
           name="name"
@@ -170,7 +182,7 @@ export function LeadForm({ defaultValues, submitLabel, onSubmit }: LeadFormProps
 
           <FormField
             control={form.control}
-            name="ownerName"
+            name="ownerId"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Responsável</FormLabel>
@@ -181,9 +193,10 @@ export function LeadForm({ defaultValues, submitLabel, onSubmit }: LeadFormProps
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {mockOwners.map((owner) => (
-                      <SelectItem key={owner} value={owner}>
-                        {owner}
+                    <SelectItem value={NO_OWNER}>Sem responsável</SelectItem>
+                    {owners.map((owner) => (
+                      <SelectItem key={owner.id} value={owner.id}>
+                        {owner.name}
                       </SelectItem>
                     ))}
                   </SelectContent>

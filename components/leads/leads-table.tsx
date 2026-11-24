@@ -2,7 +2,8 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Pencil, Plus, Search, Trash2 } from "lucide-react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { Loader2, Pencil, Plus, Search, Trash2, Users } from "lucide-react";
 
 import { DeleteLeadDialog } from "@/components/leads/delete-lead-dialog";
 import { LeadFormSheet } from "@/components/leads/lead-form-sheet";
@@ -25,9 +26,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { formatDate } from "@/lib/utils";
-import type { LeadFormValues } from "@/components/leads/lead-form";
-import type { Lead, LeadStatus } from "@/types/lead";
+import { cn, formatDate } from "@/lib/utils";
+import type { Lead, LeadFilters, LeadOwnerOption } from "@/types/lead";
 
 const dateRangeOptions = [
   { value: "all", label: "Todas as datas" },
@@ -36,76 +36,68 @@ const dateRangeOptions = [
   { value: "month", label: "Este mês" },
 ] as const;
 
-type DateRange = (typeof dateRangeOptions)[number]["value"];
+const SEARCH_DEBOUNCE_MS = 300;
 
-function matchesDateRange(createdAt: string, range: DateRange) {
-  if (range === "all") return true;
-
-  const createdDate = new Date(`${createdAt}T00:00:00`);
-  const now = new Date();
-
-  if (range === "month") {
-    return createdDate.getFullYear() === now.getFullYear() && createdDate.getMonth() === now.getMonth();
-  }
-
-  const days = range === "7d" ? 7 : 30;
-  const cutoff = new Date(now);
-  cutoff.setDate(cutoff.getDate() - days);
-  return createdDate >= cutoff;
+interface LeadsTableProps {
+  leads: Lead[];
+  filters: LeadFilters;
+  owners: LeadOwnerOption[];
 }
 
-export function LeadsTable({ initialLeads }: { initialLeads: Lead[] }) {
-  const [leads, setLeads] = React.useState(initialLeads);
-  const [search, setSearch] = React.useState("");
-  const [statusFilter, setStatusFilter] = React.useState<LeadStatus | "all">("all");
-  const [dateRange, setDateRange] = React.useState<DateRange>("all");
+/** Filtros vivem na URL: a página (Server Component) consulta o Supabase com eles. */
+export function LeadsTable({ leads, filters, owners }: LeadsTableProps) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const [isPending, startTransition] = React.useTransition();
+  const [search, setSearch] = React.useState(filters.q);
 
-  function handleSave(values: LeadFormValues, existing?: Lead) {
-    if (existing) {
-      setLeads((prev) => prev.map((lead) => (lead.id === existing.id ? { ...existing, ...values } : lead)));
-      return;
-    }
+  const updateFilter = React.useCallback(
+    (key: keyof LeadFilters, value: string) => {
+      const params = new URLSearchParams(searchParams.toString());
+      if (value && value !== "all") {
+        params.set(key, value);
+      } else {
+        params.delete(key);
+      }
+      const query = params.toString();
+      startTransition(() => {
+        router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+      });
+    },
+    [pathname, router, searchParams]
+  );
 
-    const newLead: Lead = {
-      id: `lead_${Date.now()}`,
-      createdAt: new Date().toISOString().slice(0, 10),
-      ...values,
-    };
-    setLeads((prev) => [newLead, ...prev]);
-  }
+  React.useEffect(() => {
+    if (search.trim() === filters.q) return;
+    const timeout = setTimeout(() => updateFilter("q", search.trim()), SEARCH_DEBOUNCE_MS);
+    return () => clearTimeout(timeout);
+  }, [search, filters.q, updateFilter]);
 
-  function handleDelete(lead: Lead) {
-    setLeads((prev) => prev.filter((item) => item.id !== lead.id));
-  }
-
-  const filteredLeads = leads.filter((lead) => {
-    const query = search.trim().toLowerCase();
-    const matchesSearch =
-      query.length === 0 ||
-      lead.name.toLowerCase().includes(query) ||
-      lead.company.toLowerCase().includes(query);
-    const matchesStatus = statusFilter === "all" || lead.status === statusFilter;
-    const matchesDate = matchesDateRange(lead.createdAt, dateRange);
-
-    return matchesSearch && matchesStatus && matchesDate;
-  });
+  const hasFilters =
+    filters.q !== "" || filters.status !== "all" || filters.owner !== "all" || filters.period !== "all";
 
   return (
     <div className="space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex flex-1 flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="flex flex-1 flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
           <div className="relative sm:w-64">
-            <Search className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            {isPending ? (
+              <Loader2 className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 animate-spin text-muted-foreground" />
+            ) : (
+              <Search className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            )}
             <Input
               placeholder="Buscar por nome ou empresa..."
               value={search}
               onChange={(event) => setSearch(event.target.value)}
               className="pl-8"
+              aria-label="Buscar leads"
             />
           </div>
 
-          <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as LeadStatus | "all")}>
-            <SelectTrigger className="sm:w-44">
+          <Select value={filters.status} onValueChange={(value) => updateFilter("status", value)}>
+            <SelectTrigger className="sm:w-44" aria-label="Filtrar por status">
               <SelectValue placeholder="Status" />
             </SelectTrigger>
             <SelectContent>
@@ -118,8 +110,23 @@ export function LeadsTable({ initialLeads }: { initialLeads: Lead[] }) {
             </SelectContent>
           </Select>
 
-          <Select value={dateRange} onValueChange={(value) => setDateRange(value as DateRange)}>
-            <SelectTrigger className="sm:w-44">
+          <Select value={filters.owner} onValueChange={(value) => updateFilter("owner", value)}>
+            <SelectTrigger className="sm:w-52" aria-label="Filtrar por responsável">
+              <SelectValue placeholder="Responsável" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos os responsáveis</SelectItem>
+              <SelectItem value="none">Sem responsável</SelectItem>
+              {owners.map((owner) => (
+                <SelectItem key={owner.id} value={owner.id}>
+                  {owner.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select value={filters.period} onValueChange={(value) => updateFilter("period", value)}>
+            <SelectTrigger className="sm:w-44" aria-label="Filtrar por data de criação">
               <SelectValue placeholder="Data" />
             </SelectTrigger>
             <SelectContent>
@@ -133,7 +140,7 @@ export function LeadsTable({ initialLeads }: { initialLeads: Lead[] }) {
         </div>
 
         <LeadFormSheet
-          onSave={handleSave}
+          owners={owners}
           trigger={
             <Button variant="brand" className="sm:w-auto">
               <Plus className="size-4" />
@@ -143,14 +150,27 @@ export function LeadsTable({ initialLeads }: { initialLeads: Lead[] }) {
         />
       </div>
 
-      {filteredLeads.length === 0 ? (
-        <EmptyState
-          icon={Search}
-          title="Nenhum lead encontrado"
-          description="Ajuste a busca ou os filtros para ver outros resultados."
-        />
+      {leads.length === 0 ? (
+        hasFilters ? (
+          <EmptyState
+            icon={Search}
+            title="Nenhum lead encontrado"
+            description="Ajuste a busca ou os filtros para ver outros resultados."
+          />
+        ) : (
+          <EmptyState
+            icon={Users}
+            title="Nenhum lead cadastrado"
+            description="Cadastre seu primeiro lead para começar a acompanhar o relacionamento."
+          />
+        )
       ) : (
-        <div className="overflow-x-auto rounded-lg border border-border">
+        <div
+          className={cn(
+            "overflow-x-auto rounded-lg border border-border transition-opacity",
+            isPending && "opacity-60"
+          )}
+        >
           <Table>
             <TableHeader>
               <TableRow>
@@ -163,49 +183,64 @@ export function LeadsTable({ initialLeads }: { initialLeads: Lead[] }) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredLeads.map((lead) => (
-                <TableRow key={lead.id}>
-                  <TableCell>
-                    <Link href={`/leads/${lead.id}`} className="block hover:underline">
-                      <span className="font-medium text-foreground">{lead.name}</span>
-                    </Link>
-                    <span className="block text-sm text-muted-foreground">
-                      {lead.jobTitle} · {lead.company}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    <span className="block text-sm">{lead.email}</span>
-                    <span className="block text-sm text-muted-foreground">{lead.phone}</span>
-                  </TableCell>
-                  <TableCell>
-                    <LeadStatusBadge status={lead.status} />
-                  </TableCell>
-                  <TableCell className="text-sm text-muted-foreground">{lead.ownerName}</TableCell>
-                  <TableCell className="text-sm text-muted-foreground">{formatDate(lead.createdAt)}</TableCell>
-                  <TableCell>
-                    <div className="flex justify-end gap-1">
-                      <LeadFormSheet
-                        lead={lead}
-                        onSave={handleSave}
-                        trigger={
-                          <Button variant="ghost" size="icon" aria-label={`Editar ${lead.name}`}>
-                            <Pencil className="size-4" />
-                          </Button>
-                        }
-                      />
-                      <DeleteLeadDialog
-                        lead={lead}
-                        onConfirm={handleDelete}
-                        trigger={
-                          <Button variant="ghost" size="icon" aria-label={`Excluir ${lead.name}`}>
-                            <Trash2 className="size-4 text-destructive" />
-                          </Button>
-                        }
-                      />
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
+              {leads.map((lead) => {
+                const subtitle = [lead.jobTitle, lead.company].filter(Boolean).join(" · ");
+
+                return (
+                  <TableRow key={lead.id}>
+                    <TableCell>
+                      <Link href={`/leads/${lead.id}`} className="block hover:underline">
+                        <span className="font-medium text-foreground">{lead.name}</span>
+                      </Link>
+                      {subtitle && (
+                        <span className="block text-sm text-muted-foreground">{subtitle}</span>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {lead.email || lead.phone ? (
+                        <>
+                          {lead.email && <span className="block text-sm">{lead.email}</span>}
+                          {lead.phone && (
+                            <span className="block text-sm text-muted-foreground">{lead.phone}</span>
+                          )}
+                        </>
+                      ) : (
+                        <span className="text-sm text-muted-foreground">—</span>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <LeadStatusBadge status={lead.status} />
+                    </TableCell>
+                    <TableCell className="text-sm text-muted-foreground">
+                      {lead.ownerName || "—"}
+                    </TableCell>
+                    <TableCell className="text-sm text-muted-foreground">
+                      {formatDate(lead.createdAt)}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex justify-end gap-1">
+                        <LeadFormSheet
+                          lead={lead}
+                          owners={owners}
+                          trigger={
+                            <Button variant="ghost" size="icon" aria-label={`Editar ${lead.name}`}>
+                              <Pencil className="size-4" />
+                            </Button>
+                          }
+                        />
+                        <DeleteLeadDialog
+                          lead={lead}
+                          trigger={
+                            <Button variant="ghost" size="icon" aria-label={`Excluir ${lead.name}`}>
+                              <Trash2 className="size-4 text-destructive" />
+                            </Button>
+                          }
+                        />
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         </div>

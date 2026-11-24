@@ -51,7 +51,8 @@ export function LoginForm({
     setError(undefined);
     // Em caso de sucesso a action redireciona e não retorna.
     const result = await signIn(values, next);
-    if ("error" in result) setError(result.error);
+    // Após o redirect o await pode resolver com undefined.
+    if (result && "error" in result) setError(result.error);
     setStatus("idle");
   }
 
