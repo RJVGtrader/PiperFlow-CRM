@@ -61,7 +61,8 @@ export function SignupForm({ next, defaultEmail = "" }: { next?: string; default
       { name: values.name, email: values.email, password: values.password },
       next
     );
-    if ("error" in result) setError(result.error);
+    // Após o redirect o await pode resolver com undefined.
+    if (result && "error" in result) setError(result.error);
     else setConfirmationSentTo(result.email);
     setIsSubmitting(false);
   }
