@@ -111,7 +111,7 @@ export function LeadsTable({ leads, filters, owners }: LeadsTableProps) {
           </Select>
 
           <Select value={filters.owner} onValueChange={(value) => updateFilter("owner", value)}>
-            <SelectTrigger className="sm:w-44" aria-label="Filtrar por responsável">
+            <SelectTrigger className="sm:w-52" aria-label="Filtrar por responsável">
               <SelectValue placeholder="Responsável" />
             </SelectTrigger>
             <SelectContent>

@@ -41,7 +41,8 @@ export function DeleteLeadDialog({ trigger, lead, redirectToList }: DeleteLeadDi
     setError(null);
     startTransition(async () => {
       const result = await deleteLead(lead.id, { redirectToList });
-      if (!result.ok) {
+      // Com redirectToList, a action redireciona e o await pode resolver com undefined.
+      if (result && !result.ok) {
         setError(result.error);
         return;
       }
